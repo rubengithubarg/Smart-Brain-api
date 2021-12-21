@@ -14,7 +14,9 @@ const postgres = knex({
     }
 });
 
-console.log(postgres.select('*').from('users'));
+postgres.select('*').from('users').then(data => {
+    console.log(data);
+});
 
 const app = express();
 
@@ -58,13 +60,12 @@ app.post('/singnin', (req, res) => {
 
 app.post('/register', (req, res) => {
     const {email, name, password } = req.body;
-    database.users.push({
-            id: '125',
-            name: name,
-            email: email,
-            entries: 0,
-            joined: new Date()  
-    })
+    db.('users').insert({
+        email: email,
+        name: name,
+        password: password,
+        joined: new Date()
+    }).then(console.log)
     res.json(database.users[database.users.length - 1]);
 })
 
