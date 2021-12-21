@@ -60,18 +60,30 @@ app.post('/singnin', (req, res) => {
 
 app.post('/register', (req, res) => {
     const {email, name, password } = req.body;
-
-    postgres('users')
-    .returning('*')
-    .insert({
-        email: email,
-        name: name,
-        joined: new Date()
+    const hash = bcrypt.hashSync(password);
+    postgres.transaction(trx => {
+        trx.insert({
+          hash: hash,
+          email: email
+        })
+        .into('login')
+        .returning('email')
+        .then(LoginEmail => {
+            return trx('users')
+                .returning('*')
+                .insert({
+                    email: LoginEmail[0],
+                    name: name,
+                    joined: new Date()
+                })
+                .then(user => {
+                    res.json(user[0]);
+                })
+            })
+            .then(trx.commit)
+            .catch(trx.rollback)
     })
-      .then(user => {
-        res.json(user[0]);
-      })
-      .catch(err => res.status(400).json(err))
+      .catch(err => res.status(400).json('unable to register'))
 })
 
 app.get('/profile/:id', (req, res) => {
