@@ -1,4 +1,4 @@
-# SmartBrain-api (Face Recognition App) API
+# Smart Brain-api (Face Recognition App) API
 
 1. Clone this repo
 2. Run `npm install`
